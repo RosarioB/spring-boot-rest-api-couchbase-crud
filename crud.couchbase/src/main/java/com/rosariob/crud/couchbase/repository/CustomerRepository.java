@@ -5,12 +5,9 @@ import com.couchbase.client.core.msg.kv.DurabilityLevel;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.transactions.TransactionGetResult;
-import com.couchbase.client.java.transactions.TransactionResult;
 import com.couchbase.client.java.transactions.Transactions;
 import com.couchbase.client.java.transactions.config.TransactionOptions;
-import com.couchbase.client.java.transactions.config.TransactionsConfig;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rosariob.crud.couchbase.component.CustomerMapper;
 import com.rosariob.crud.couchbase.config.ApplicationProperties;
 import com.rosariob.crud.couchbase.entity.Customer;
 import jakarta.annotation.PostConstruct;
@@ -26,6 +23,7 @@ import java.util.stream.Collectors;
 public class CustomerRepository implements GenericRepository<Customer> {
     private CouchbaseTemplate couchbaseTemplate;
     private ApplicationProperties applicationProperties;
+    private CustomerMapper customerMapper;
     private String bucketName;
     private String scopeName;
     private String collectionName;
@@ -37,9 +35,11 @@ public class CustomerRepository implements GenericRepository<Customer> {
 
 
     @Autowired
-    public CustomerRepository(CouchbaseTemplate couchbaseTemplate, ApplicationProperties applicationProperties) {
+    public CustomerRepository(CouchbaseTemplate couchbaseTemplate, ApplicationProperties applicationProperties,
+                              CustomerMapper customerMapper) {
         this.couchbaseTemplate = couchbaseTemplate;
         this.applicationProperties = applicationProperties;
+        this.customerMapper = customerMapper;
     }
 
     @PostConstruct
@@ -56,7 +56,7 @@ public class CustomerRepository implements GenericRepository<Customer> {
     public List<Customer> findAll() {
         List<JsonObject> jsonObjects = couchbaseTemplate.getCouchbaseClientFactory().getScope()
                 .query(String.format("SELECT * FROM %1$s ", keySpace)).rowsAsObject();
-        return jsonObjects.stream().map(this::mapJsonToCustomer).collect(Collectors.toList());
+        return jsonObjects.stream().map(obj -> customerMapper.mapJsonObjectToCustomer(obj, collectionName)).collect(Collectors.toList());
      }
     @Override
     public Customer findById(String id) {
@@ -98,15 +98,5 @@ public class CustomerRepository implements GenericRepository<Customer> {
     @Override
     public void deleteAll() {
         transactions.run(ctx -> ctx .query(String.format("DELETE FROM %1$s ", keySpace)), transactionOptions);
-    }
-
-    private Customer mapJsonToCustomer(JsonObject jsonObject){
-        Customer customer = null;
-        try {
-            customer = new ObjectMapper().readValue(jsonObject.get(collectionName).toString(), Customer.class);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-        return customer;
     }
 }

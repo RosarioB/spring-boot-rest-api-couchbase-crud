@@ -6,7 +6,6 @@ import com.couchbase.client.java.ClusterOptions;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.Scope;
 import com.couchbase.client.java.kv.ExistsResult;
-import com.couchbase.client.java.transactions.TransactionResult;
 import com.couchbase.client.java.transactions.Transactions;
 import com.rosariob.crud.couchbase.entity.Customer;
 import org.junit.jupiter.api.Assertions;
@@ -44,8 +43,8 @@ public class CustomerRepositoryTest {
     private static String keySpace;
 
     private static final DockerImageName COUCHBASE_IMAGE_ENTERPRISE = DockerImageName
-            .parse("couchbase:enterprise-7.1.4")
-            .asCompatibleSubstituteFor("couchbase/server");
+            //.parse("server:enterprise-7.0.3").asCompatibleSubstituteFor("couchbase/server");
+            .parse("couchbase:enterprise-7.1.4").asCompatibleSubstituteFor("couchbase/server");
     @Container
     private static final CouchbaseContainer container = new CouchbaseContainer(COUCHBASE_IMAGE_ENTERPRISE)
             .withCredentials("Administrator", "password")
