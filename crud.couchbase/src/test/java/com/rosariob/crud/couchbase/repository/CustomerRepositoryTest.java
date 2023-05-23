@@ -43,8 +43,8 @@ public class CustomerRepositoryTest {
     private static String keySpace;
 
     private static final DockerImageName COUCHBASE_IMAGE_ENTERPRISE = DockerImageName
-            //.parse("server:enterprise-7.0.3").asCompatibleSubstituteFor("couchbase/server");
-            .parse("couchbase:enterprise-7.1.4").asCompatibleSubstituteFor("couchbase/server");
+            .parse("couchbase:enterprise-7.0.3").asCompatibleSubstituteFor("couchbase/server");
+            //.parse("couchbase:enterprise-7.1.4").asCompatibleSubstituteFor("couchbase/server");
     @Container
     private static final CouchbaseContainer container = new CouchbaseContainer(COUCHBASE_IMAGE_ENTERPRISE)
             .withCredentials("Administrator", "password")
