@@ -45,7 +45,7 @@ public class CustomerRepositoryTest {
     private static String keySpace;
 
     private static final DockerImageName COUCHBASE_IMAGE_ENTERPRISE = DockerImageName
-            .parse("couchbase:enterprise-7.1.4")
+            .parse("couchbase:enterprise-7.0.2")
             .asCompatibleSubstituteFor("couchbase/server");
     @Container
     private static CouchbaseContainer container = new CouchbaseContainer(COUCHBASE_IMAGE_ENTERPRISE)
@@ -74,28 +74,23 @@ public class CustomerRepositoryTest {
     @BeforeEach
     public void clearCollection() {
         Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx ->
-                scope.query("DELETE FROM " + keySpace)
-        );
+        transactions.run(ctx -> ctx.query("DELETE FROM " + keySpace));
     }
     @Test
     public void testFindById() {
             Customer alex = new Customer("customer1", "Alex", "Stone");
-            Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-            transactions.run(ctx -> collection.insert(alex.getId(), alex));
+            collection.insert(alex.getId(), alex);
             Customer customer = customerRepository.findById(alex.getId());
             Assertions.assertEquals(alex, customer);
     }
 
     @Test
-    public void testFindAll() throws InterruptedException {
+    public void testFindAll() {
         Customer alex = new Customer("customer1", "Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
         Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx ->
-                customerList.forEach(customer -> collection.insert(customer.getId(), customer))
-        );
+        transactions.run(ctx ->  customerList.forEach(customer -> ctx.insert(collection, customer.getId(), customer)));
         List<Customer> customers = customerRepository.findAll();
         Assertions.assertEquals(customerList, customers);
     }
@@ -103,8 +98,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testCreate(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx -> customerRepository.create(alex));
+        customerRepository.create(alex);
         Customer result = collection.get(alex.getId()).contentAs(Customer.class);
         Assertions.assertEquals(alex, result);
     }
@@ -113,9 +107,8 @@ public class CustomerRepositoryTest {
     public void testUpdate(){
         Customer alex = new Customer("customer1","Alex", "Stone");
         Customer alex2 = new Customer("customer1","Alex", "Yellow");
-        Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx -> collection.insert(alex.getId(), alex));
-        transactions.run(ctx -> customerRepository.update(alex2));
+        collection.insert(alex.getId(), alex);
+        customerRepository.update(alex2);
         Customer result = collection.get(alex2.getId()).contentAs(Customer.class);
         Assertions.assertEquals(alex2, result);
     }
@@ -123,8 +116,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testUpsert(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx -> customerRepository.upsert(alex));
+        customerRepository.upsert(alex);
         Customer result = collection.get(alex.getId()).contentAs(Customer.class);
         Assertions.assertEquals(alex, result);
     }
@@ -132,23 +124,20 @@ public class CustomerRepositoryTest {
     @Test
     public void testDeleteById(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx -> collection.insert(alex.getId(), alex));
-        transactions.run(ctx -> customerRepository.deleteById(alex.getId()));
+        collection.insert(alex.getId(), alex);
+        customerRepository.deleteById(alex.getId());
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
     }
 
     @Test
-    public void testDeleteAll(){
+    public void testDeleteAll() {
         Customer alex = new Customer("customer1","Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
         Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        transactions.run(ctx ->
-                customerList.forEach(customer -> collection.insert(customer.getId(), customer))
-        );
-        transactions.run(ctx -> customerRepository.deleteAll());
+        transactions.run(ctx ->customerList.forEach(customer -> ctx.insert(collection, customer.getId(), customer)));
+        customerRepository.deleteAll();
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
         ExistsResult exists2 = collection.exists(jack.getId());
