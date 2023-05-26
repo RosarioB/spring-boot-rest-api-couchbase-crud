@@ -1,8 +1,10 @@
 package com.rosariob.crud.couchbase.rest;
 
+import com.couchbase.client.core.error.DocumentNotFoundException;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,30 +27,69 @@ public class CustomerController {
     }
 
     @GetMapping("/{customerId}")
-    public Customer findById(@PathVariable String customerId){
-        return customerService.findById(customerId);
+    public ResponseEntity findById(@PathVariable String customerId){
+        try {
+            Customer found = customerService.findById(customerId);
+            return ResponseEntity.ok(found);
+        }
+        catch(DocumentNotFoundException e){
+                return ResponseEntity.notFound().build();
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping
-    public List<Customer> findAll(){
-        return customerService.findAll();
+    public ResponseEntity findAll(){
+        try {
+            List<Customer> found = customerService.findAll();
+            return ResponseEntity.ok(found);
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PostMapping
-    public Customer create(@RequestBody Customer customer){
-        return  customerService.create(customer);
+    public ResponseEntity create(@RequestBody Customer customer){
+        try {
+            return ResponseEntity.ok(customerService.create(customer));
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @PutMapping
-    public Customer update(@RequestBody Customer customer){
-        return customerService.update(customer);
+    public ResponseEntity update(@RequestBody Customer customer){
+        try {
+            return ResponseEntity.ok(customerService.update(customer));
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{customerId}")
-    public void deleteById(@PathVariable String customerId){
-        customerService.deleteById(customerId);
+    public ResponseEntity deleteById(@PathVariable String customerId){
+        try {
+            customerService.deleteById(customerId);
+            return ResponseEntity.ok().build();
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 
     @DeleteMapping()
-    public void deleteAll(){customerService.deleteAll();};
+    public ResponseEntity deleteAll(){
+        try {
+            customerService.deleteAll();
+            return ResponseEntity.ok().build();
+        }
+        catch(Exception e){
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
 }
