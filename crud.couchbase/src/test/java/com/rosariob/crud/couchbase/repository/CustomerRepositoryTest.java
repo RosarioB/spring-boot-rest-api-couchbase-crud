@@ -89,10 +89,7 @@ public class CustomerRepositoryTest {
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
         Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-        customerList.forEach(customer ->
-                transactions.run(ctx -> ctx.insert(collection, customer.getId(), customer)
-                )
-        );
+        transactions.run(ctx ->customerList.forEach(customer -> ctx.insert(collection, customer.getId(), customer)));
         List<Customer> customers = customerRepository.findAll();
         Assertions.assertEquals(customerList, customers);
     }

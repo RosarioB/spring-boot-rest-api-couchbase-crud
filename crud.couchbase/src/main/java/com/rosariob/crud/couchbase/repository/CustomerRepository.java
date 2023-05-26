@@ -4,6 +4,7 @@ package com.rosariob.crud.couchbase.repository;
 import com.couchbase.client.core.msg.kv.DurabilityLevel;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.query.QueryScanConsistency;
 import com.couchbase.client.java.transactions.TransactionGetResult;
 import com.couchbase.client.java.transactions.Transactions;
 import com.couchbase.client.java.transactions.config.TransactionOptions;
@@ -13,6 +14,7 @@ import com.rosariob.crud.couchbase.entity.Customer;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
+import org.springframework.data.couchbase.repository.ScanConsistency;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Repository
+@ScanConsistency(query = QueryScanConsistency.REQUEST_PLUS)
 public class CustomerRepository implements GenericRepository<Customer> {
     private CouchbaseTemplate couchbaseTemplate;
     private ApplicationProperties applicationProperties;
