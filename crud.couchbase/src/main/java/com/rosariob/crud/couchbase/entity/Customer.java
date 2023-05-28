@@ -5,13 +5,16 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.context.annotation.Scope;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Version;
 import org.springframework.data.couchbase.core.mapping.Document;
 import org.springframework.data.couchbase.core.mapping.Field;
+import org.springframework.data.couchbase.repository.Collection;
 
 @Document
 @NoArgsConstructor  @AllArgsConstructor  @Getter  @Setter @EqualsAndHashCode
+@Scope("_default") @Collection("customers")
 public class Customer {
 
     @Id
