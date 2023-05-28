@@ -3,9 +3,9 @@ Spring Boot REST APIs with CRUD for Couchbase.
 
 Each branch implements different features:
 
--***basic_crud***: basic REST APIs with CRUD for Couchbase
+- ***basic_crud***: basic REST APIs with CRUD for Couchbase
 
--***transactions_implementations***: REST APIs with transactions
+- ***transactions_implementations***: REST APIs with transactions
 
 The APIs work fine but some tests may fail randomly if you run them altogheter. I am trying to solve the issue.
 
