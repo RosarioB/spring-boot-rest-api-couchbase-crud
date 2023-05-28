@@ -83,6 +83,7 @@ public class CustomerController {
         }
     }
 
+    //TODO must fix this test
     @DeleteMapping()
     public ResponseEntity deleteAll(){
         try {

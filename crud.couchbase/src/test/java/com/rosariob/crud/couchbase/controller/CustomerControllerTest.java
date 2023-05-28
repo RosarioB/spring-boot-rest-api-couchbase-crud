@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @ExtendWith(SpringExtension.class)
-//@ContextConfiguration(classes = CustomerControllerTestConfig.class)
 @WebMvcTest(CustomerController.class)
 public class CustomerControllerTest {
 
