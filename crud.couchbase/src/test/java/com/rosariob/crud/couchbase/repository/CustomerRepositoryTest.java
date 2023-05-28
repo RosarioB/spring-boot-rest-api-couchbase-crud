@@ -30,7 +30,7 @@ import java.util.List;
 @Testcontainers
 public class CustomerRepositoryTest {
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerRepositoryImpl customerRepository;
     @Autowired
     private CouchbaseTemplate couchbaseTemplate;
     private static final String BUCKET_NAME = "customers";

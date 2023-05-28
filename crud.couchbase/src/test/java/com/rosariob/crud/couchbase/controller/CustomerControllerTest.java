@@ -3,21 +3,19 @@ package com.rosariob.crud.couchbase.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.rest.CustomerController;
-import com.rosariob.crud.couchbase.service.CustomerService;
+import com.rosariob.crud.couchbase.service.CustomerServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = CustomerControllerTestConfig.class)
 @WebMvcTest(CustomerController.class)
 public class CustomerControllerTest {
 
@@ -25,7 +23,7 @@ public class CustomerControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     private static final String URL_API = "/api/customers";
 

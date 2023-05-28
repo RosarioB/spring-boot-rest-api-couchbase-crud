@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 public class CustomerServiceTestConfig {
 
     @Bean
-    public GenericService customerService() {
-        return new CustomerService();
+    public CustomerService customerService() {
+        return new CustomerServiceImpl();
     }
 }

@@ -1,7 +1,7 @@
 package com.rosariob.crud.couchbase.service;
 
 import com.rosariob.crud.couchbase.entity.Customer;
-import com.rosariob.crud.couchbase.repository.CustomerRepository;
+import com.rosariob.crud.couchbase.repository.CustomerRepositoryImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,10 +21,10 @@ import static org.mockito.Mockito.when;
 @ContextConfiguration(classes = CustomerServiceTestConfig.class)
 public class CustomerServiceTest {
     @MockBean
-    private CustomerRepository repository;
+    private CustomerRepositoryImpl repository;
 
     @Autowired
-    private CustomerService customerService;
+    private CustomerServiceImpl customerService;
 
     @BeforeEach
     public void setUp() {
