@@ -3,6 +3,7 @@ package com.rosariob.crud.couchbase.rest;
 import com.couchbase.client.core.error.DocumentNotFoundException;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.service.CustomerService;
+import com.rosariob.crud.couchbase.service.CustomerServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +23,7 @@ public class CustomerController {
     private CustomerService customerService;
 
     @Autowired
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CustomerServiceImpl customerService) {
         this.customerService = customerService;
     }
 
