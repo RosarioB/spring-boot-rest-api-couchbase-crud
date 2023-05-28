@@ -26,6 +26,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
 
 @SpringBootTest
 @Testcontainers
@@ -94,7 +95,7 @@ public class CustomerRepositoryTest {
         customerList.forEach(customer -> collection.insert(customer.getId(), customer));
         List<Customer> customers = customerRepository.findAll();
         customers.forEach(c -> {
-            if(c.getId() == alex.getId()){
+            if(Objects.equals(c.getId(), alex.getId())){
                 assertEqualsExceptCas(alex, c);
             }
             assertEqualsExceptCas(jack, c);
