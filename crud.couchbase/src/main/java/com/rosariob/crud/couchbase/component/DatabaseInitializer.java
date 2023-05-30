@@ -44,10 +44,8 @@ public class DatabaseInitializer {
             cluster.buckets()
                     .createBucket(BucketSettings.create(bucketName)
                             .bucketType(BucketType.COUCHBASE)
-                            .ramQuotaMB(120)
-                            .numReplicas(1)
-                            .replicaIndexes(true)
-                            .flushEnabled(true));
+                            .ramQuotaMB(256)
+                            .numReplicas(0));
             log.info("Created bucket " + bucketName);
         }
 

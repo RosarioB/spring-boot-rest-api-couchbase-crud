@@ -1,6 +1,5 @@
 package com.rosariob.crud.couchbase.rest;
 
-import com.couchbase.client.core.error.DocumentNotFoundException;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.service.CustomerService;
 import com.rosariob.crud.couchbase.service.CustomerServiceImpl;
@@ -31,10 +30,10 @@ public class CustomerController {
     public ResponseEntity findById(@PathVariable String customerId){
         try {
             Customer found = customerService.findById(customerId);
-            return ResponseEntity.ok(found);
-        }
-        catch(DocumentNotFoundException e){
+            if(found == null) {
                 return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(found);
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().build();
@@ -55,7 +54,7 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity create(@RequestBody Customer customer){
         try {
-            return ResponseEntity.ok(customerService.create(customer));
+            return ResponseEntity.ok(customerService.save(customer));
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -65,7 +64,7 @@ public class CustomerController {
     @PutMapping
     public ResponseEntity update(@RequestBody Customer customer){
         try {
-            return ResponseEntity.ok(customerService.update(customer));
+            return ResponseEntity.ok(customerService.save(customer));
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
