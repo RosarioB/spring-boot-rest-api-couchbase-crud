@@ -126,10 +126,7 @@ public class CustomerRepositoryTest {
         List<Customer> customerList = List.of(alex, jack);
         customerList.forEach(cust -> customerRepository.save(cust));
         customerRepository.deleteAll();
-        ExistsResult exists = collection.exists(alex.getId());
-        Assertions.assertFalse(exists.exists());
-        ExistsResult exists2 = collection.exists(jack.getId());
-        Assertions.assertFalse(exists2.exists());
+        Assertions.assertTrue(customerRepository.findAll().isEmpty());
     }
     private static void assertEqualsExceptCas(Customer expected, Customer actual) {
         Assertions.assertEquals(expected.getId(), actual.getId());
