@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -29,11 +30,10 @@ public class CustomerController {
     @GetMapping("/{customerId}")
     public ResponseEntity findById(@PathVariable String customerId){
         try {
-            Customer found = customerService.findById(customerId);
-            if(found == null) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(found);
+            return ResponseEntity.ok(customerService.findById(customerId));
+        }
+        catch(NoSuchElementException e){
+            return ResponseEntity.notFound().build();
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().build();

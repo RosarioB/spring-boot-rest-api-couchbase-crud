@@ -1,19 +1,13 @@
 package com.rosariob.crud.couchbase.service;
 
-import com.couchbase.client.java.Cluster;
-import com.couchbase.client.java.transactions.TransactionResult;
-import com.couchbase.client.java.transactions.Transactions;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.repository.CustomerRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.couchbase.CouchbaseClientFactory;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -25,7 +19,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
-//@ContextConfiguration(classes = CustomerServiceTestConfig.class)
 public class CustomerServiceTest {
     @MockBean
     private CustomerRepository repository;
@@ -33,37 +26,15 @@ public class CustomerServiceTest {
     @MockBean
     private CouchbaseTemplate couchbaseTemplate;
 
-    @Mock
-    private CouchbaseClientFactory couchbaseClientFactory;
-
-    @Mock
-    private Cluster cluster;
-
-    @Mock
-    private Transactions transactions;
-
-    @Mock
-    private TransactionResult transactionResult;
-
-
-
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this);
         Customer alex = new Customer("customer1","Alex", "Stone");
         Customer jack = new Customer("customer2","Jack", "Sparrow");
 
-        when(couchbaseTemplate.getCouchbaseClientFactory()).thenReturn(couchbaseClientFactory);
-        when(couchbaseClientFactory.getCluster()).thenReturn(cluster);
-        when(cluster.transactions()).thenReturn(transactions);
-
         when(repository.findById(alex.getId())).thenReturn(Optional.of(alex));
         when(repository.findAll()).thenReturn(List.of(alex,jack));
         when(repository.save(alex)).thenReturn(alex);
-
-
-        when(transactions.run(Mockito.any())).thenReturn(transactionResult);
-
     }
 
     @Test
@@ -95,9 +66,10 @@ public class CustomerServiceTest {
     @Test
     public void deleteByIdOk(){
         CustomerService customerService = new CustomerServiceImpl(repository, couchbaseTemplate);
+        Customer alex = new Customer("customer1","Alex", "Stone");
         String customerId = "customer1";
         customerService.deleteById(customerId);
-        verify(repository, times(1)).deleteById("customer1");
+        verify(repository, times(1)).delete(alex);
     }
 
     @Test

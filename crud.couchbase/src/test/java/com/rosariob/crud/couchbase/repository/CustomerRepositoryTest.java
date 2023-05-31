@@ -8,7 +8,6 @@ import com.couchbase.client.java.Scope;
 import com.couchbase.client.java.kv.ExistsResult;
 import com.couchbase.client.java.transactions.Transactions;
 import com.rosariob.crud.couchbase.entity.Customer;
-import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,13 +44,6 @@ public class CustomerRepositoryTest {
     private static Scope scope;
     private static String keySpace;
     private static Collection collection;
-    private Transactions transactions;
-
-    @PostConstruct
-    public void postConstruct(){
-        transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
-    }
-
     private static final DockerImageName COUCHBASE_IMAGE_ENTERPRISE = DockerImageName
             .parse("couchbase:enterprise-7.0.3").asCompatibleSubstituteFor("couchbase/server");
 
@@ -81,13 +73,14 @@ public class CustomerRepositoryTest {
 
     @BeforeEach
     public void clearCollection() {
-        //transactions.run(ctx -> customerRepository.deleteAll());
+        //customerRepository.deleteAll();
+        Transactions transactions = couchbaseTemplate.getCouchbaseClientFactory().getCluster().transactions();
         transactions.run(ctx -> ctx.query("DELETE FROM " + keySpace));
     }
     @Test
     public void testFindById() {
         Customer alex = new Customer("customer1", "Alex", "Stone");
-        transactions.run(ctx -> customerRepository.save(alex));
+        customerRepository.save(alex);
         Optional<Customer> customerOptional = customerRepository.findById(alex.getId());
         assertEqualsExceptCas(alex, customerOptional.get());
     }
@@ -97,7 +90,7 @@ public class CustomerRepositoryTest {
         Customer alex = new Customer("customer1", "Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
-        transactions.run(ctx -> customerList.forEach(cust -> customerRepository.save(cust)));
+        customerList.forEach(cust -> customerRepository.save(cust));
         List<Customer> customers = customerRepository.findAll();
         customers.forEach(c -> {
             if (c.getId().equals(alex.getId())) {
@@ -120,7 +113,7 @@ public class CustomerRepositoryTest {
     @Test
     public void testDeleteById(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        transactions.run(ctx -> customerRepository.save(alex));
+        customerRepository.save(alex);
         customerRepository.deleteById(alex.getId());
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
@@ -131,7 +124,7 @@ public class CustomerRepositoryTest {
         Customer alex = new Customer("customer1","Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
-        transactions.run(ctx -> customerList.forEach(cust -> customerRepository.save(cust)));
+        customerList.forEach(cust -> customerRepository.save(cust));
         customerRepository.deleteAll();
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
