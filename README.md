@@ -9,7 +9,5 @@ Each branch implements different features:
 
 The APIs work fine but some tests may fail randomly if you run them altogheter. I am trying to solve the issue.
 
-I have experienced some issue with some methods of the CouchbaseTemplate and also extending the CrudRepository so I have tried other ways to produce methods that work.
-
 If you have any suggestions or thoughts feel free to contact me.
 
