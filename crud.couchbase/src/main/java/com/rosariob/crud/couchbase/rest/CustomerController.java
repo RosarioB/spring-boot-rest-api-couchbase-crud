@@ -1,6 +1,5 @@
 package com.rosariob.crud.couchbase.rest;
 
-import com.couchbase.client.core.error.DocumentNotFoundException;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.service.CustomerService;
 import com.rosariob.crud.couchbase.service.CustomerServiceImpl;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -30,11 +30,10 @@ public class CustomerController {
     @GetMapping("/{customerId}")
     public ResponseEntity findById(@PathVariable String customerId){
         try {
-            Customer found = customerService.findById(customerId);
-            return ResponseEntity.ok(found);
+            return ResponseEntity.ok(customerService.findById(customerId));
         }
-        catch(DocumentNotFoundException e){
-                return ResponseEntity.notFound().build();
+        catch(NoSuchElementException e){
+            return ResponseEntity.notFound().build();
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().build();
@@ -55,7 +54,7 @@ public class CustomerController {
     @PostMapping
     public ResponseEntity create(@RequestBody Customer customer){
         try {
-            return ResponseEntity.ok(customerService.create(customer));
+            return ResponseEntity.ok(customerService.save(customer));
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -65,7 +64,7 @@ public class CustomerController {
     @PutMapping
     public ResponseEntity update(@RequestBody Customer customer){
         try {
-            return ResponseEntity.ok(customerService.update(customer));
+            return ResponseEntity.ok(customerService.save(customer));
         }
         catch(Exception e){
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -83,7 +82,6 @@ public class CustomerController {
         }
     }
 
-    //TODO must fix this test
     @DeleteMapping()
     public ResponseEntity deleteAll(){
         try {

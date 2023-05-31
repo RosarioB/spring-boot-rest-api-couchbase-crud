@@ -3,18 +3,25 @@ package com.rosariob.crud.couchbase.service;
 import com.rosariob.crud.couchbase.entity.Customer;
 import com.rosariob.crud.couchbase.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class CustomerServiceImpl implements CustomerService {
-    @Autowired
     private CustomerRepository repository;
+    private CouchbaseTemplate couchbaseTemplate;
+
+    @Autowired
+    public CustomerServiceImpl(CustomerRepository repository, CouchbaseTemplate couchbaseTemplate) {
+        this.repository = repository;
+        this.couchbaseTemplate = couchbaseTemplate;
+    }
 
     @Override
     public Customer findById(String id) {
-        return repository.findById(id);
+        return repository.findById(id).orElseThrow();
     }
 
     @Override
@@ -23,23 +30,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Customer create(Customer customer) {
-        return repository.create(customer);
-    }
-
-    @Override
-    public Customer update(Customer customer) {
-        return repository.update(customer);
-    }
-
-    @Override
-    public Customer upsert(Customer customer) {
-        return repository.upsert(customer);
+    public Customer save(Customer customer) {
+        return repository.save(customer);
     }
 
     @Override
     public void deleteById(String id) {
-        repository.deleteById(id);
+        Customer customer = repository.findById(id).orElseThrow();
+        repository.delete(customer);
     }
 
     @Override

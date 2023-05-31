@@ -5,7 +5,6 @@ import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.ClusterOptions;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.Scope;
-import com.couchbase.client.java.json.JsonObject;
 import com.couchbase.client.java.kv.ExistsResult;
 import com.couchbase.client.java.transactions.Transactions;
 import com.rosariob.crud.couchbase.entity.Customer;
@@ -26,7 +25,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 @SpringBootTest
 @Testcontainers
@@ -47,12 +46,12 @@ public class CustomerRepositoryTest {
     private static String keySpace;
 
     private static final DockerImageName COUCHBASE_IMAGE_ENTERPRISE = DockerImageName
-            .parse("couchbase:enterprise-7.0.2")
-            .asCompatibleSubstituteFor("couchbase/server");
+            .parse("couchbase:enterprise-7.0.3").asCompatibleSubstituteFor("couchbase/server");
+
     @Container
-    private static CouchbaseContainer container = new CouchbaseContainer(COUCHBASE_IMAGE_ENTERPRISE)
+    private static final CouchbaseContainer container = new CouchbaseContainer(COUCHBASE_IMAGE_ENTERPRISE)
             .withCredentials("Administrator", "password")
-            .withBucket(new BucketDefinition(BUCKET_NAME).withPrimaryIndex(true))
+            .withBucket(new BucketDefinition(BUCKET_NAME).withReplicas(0).withPrimaryIndex(true))
             .withStartupTimeout(Duration.ofMinutes(2));
 
     @DynamicPropertySource
@@ -80,69 +79,52 @@ public class CustomerRepositoryTest {
     }
     @Test
     public void testFindById() {
-            Customer alex = new Customer("customer1", "Alex", "Stone");
-            collection.insert(alex.getId(), alex);
-            Customer customer = customerRepository.findById(alex.getId());
-            assertEqualsExceptCas(alex, customer);
+        Customer alex = new Customer("customer1", "Alex", "Stone");
+        customerRepository.save(alex);
+        Optional<Customer> customerOptional = customerRepository.findById(alex.getId());
+        assertEqualsExceptCas(alex, customerOptional.get());
     }
-
 
     @Test
     public void testFindAll() {
         Customer alex = new Customer("customer1", "Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
-        customerList.forEach(customer -> collection.insert(customer.getId(), customer));
+        customerList.forEach(cust -> customerRepository.save(cust));
         List<Customer> customers = customerRepository.findAll();
         customers.forEach(c -> {
-            if(Objects.equals(c.getId(), alex.getId())){
+            if (c.getId().equals(alex.getId())) {
                 assertEqualsExceptCas(alex, c);
             }
-            assertEqualsExceptCas(jack, c);
+            else {
+                assertEqualsExceptCas(jack, c);
+            }
         });
     }
 
     @Test
-    public void testCreate(){
+    public void testSave(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        customerRepository.create(alex);
-        JsonObject result = collection.get(alex.getId()).contentAsObject();
-        assertEqualsExceptCas(alex, mapJsonToCustomer(result));
-    }
-
-    @Test
-    public void testUpdate(){
-        Customer alex = new Customer("customer1","Alex", "Stone");
-        Customer alex2 = new Customer("customer1","Alex", "Yellow");
-        collection.insert(alex.getId(), alex);
-        customerRepository.update(alex2);
-        JsonObject result = collection.get(alex2.getId()).contentAsObject();
-        assertEqualsExceptCas(alex2, mapJsonToCustomer(result));
-    }
-
-    @Test
-    public void testUpsert(){
-        Customer alex = new Customer("customer1","Alex", "Stone");
-        customerRepository.upsert(alex);
-        JsonObject result = collection.get(alex.getId()).contentAsObject();
-        assertEqualsExceptCas(alex, mapJsonToCustomer(result));
+        customerRepository.save(alex);
+        Customer result = customerRepository.findById(alex.getId()).get();
+        assertEqualsExceptCas(alex, result);
     }
 
     @Test
     public void testDeleteById(){
         Customer alex = new Customer("customer1","Alex", "Stone");
-        collection.insert(alex.getId(), alex);
+        customerRepository.save(alex);
         customerRepository.deleteById(alex.getId());
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
     }
 
     @Test
-    public void testDeleteAll() {
+    public void testDeleteAll(){
         Customer alex = new Customer("customer1","Alex", "Stone");
         Customer jack = new Customer("customer2", "Jack", "Sparrow");
         List<Customer> customerList = List.of(alex, jack);
-        customerList.forEach(customer -> collection.insert(customer.getId(), customer));
+        customerList.forEach(cust -> customerRepository.save(cust));
         customerRepository.deleteAll();
         ExistsResult exists = collection.exists(alex.getId());
         Assertions.assertFalse(exists.exists());
@@ -153,12 +135,5 @@ public class CustomerRepositoryTest {
         Assertions.assertEquals(expected.getId(), actual.getId());
         Assertions.assertEquals(expected.getFirstName(), actual.getFirstName());
         Assertions.assertEquals(expected.getLastName(), actual.getLastName());
-    }
-
-    private static Customer mapJsonToCustomer(JsonObject jsonObject) {
-        String firstName = jsonObject.get("firstName").toString();
-        String lastName = jsonObject.get("lastName").toString();
-        String id = firstName.equals("Alex") ? "customer1" : "customer2";
-        return new Customer(id, firstName, lastName);
     }
 }
