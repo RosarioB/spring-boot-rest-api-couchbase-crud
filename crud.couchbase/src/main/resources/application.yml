@@ -12,3 +12,4 @@ application:
 logging:
   level:
     org.springframework.data.convert.CustomConversions: INFO
+    org.springframework.data.couchbase.core: ERROR
