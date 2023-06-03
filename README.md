@@ -1,4 +1,4 @@
-# spring-boot-rest-api-couchbase-crud
+# spring-boot-rest-api-couchbase
 Spring Boot REST APIs with CRUD for Couchbase. 
 
 Each branch implements different features:
